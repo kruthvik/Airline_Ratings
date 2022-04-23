@@ -235,13 +235,15 @@ class Ratings():
 
     def help(self):
         """Provides a list of commands"""
+        print("List of Commands and Their Functions")
         print(self.acc())
+        print('\n')
 
     @classmethod
     def acc(self):
         res = ""
         method_list = [attribute for attribute in dir(self) if callable(
-        getattr(self, attribute)) and attribute.startswith('__') is False and attribute not in ["convert"," "acc"]]
+        getattr(self, attribute)) and attribute.startswith('__') is False and attribute != 'convert' and attribute != 'acc']
         for i in method_list:
             res += "\npy main.py --command %s...: %s" % (i, getattr(self, i).__doc__)
         return res
