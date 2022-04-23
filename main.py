@@ -29,7 +29,7 @@ def safeCheck():
 safeCheck()
 
 
-def get(): return list(csv.reader(open(csv_file, 'w+', encoding='utf-8'), delimiter=':'))
+def get(): return list(csv.reader(open(csv_file, 'r+', encoding='utf-8'), delimiter=':'))
 def fetch(): return json.load(
     open('airlines.json', 'r+', encoding='utf-8'))
 
@@ -70,6 +70,10 @@ class Ratings():
             self.mode()
             return
 
+        if self.command == 'help':
+            self.help()
+            return
+
         if not hasattr(self, self.command):
             print("Invalid command")
             return
@@ -82,6 +86,7 @@ class Ratings():
             getattr(self, self.command)(self.airline)
 
     def list(self):
+        """Lists all the airplanes in the airplane list."""
         safeCheck()
         airlines = fetch()['airlines']
         if len(airlines) == 0:
@@ -93,6 +98,7 @@ class Ratings():
             print("Airline %s: %s" % (i + 1, v))
 
     def add(self, airlines):
+        """Adds an airplane to the airplane list"""
         safeCheck()
         al = set(fetch()['airlines'])
         airlines = [i.replace('_', ' ').replace('-', ' ').title()
@@ -133,6 +139,7 @@ class Ratings():
         self.update()
 
     def remove(self, airlines):
+        """Removes the airplane from the airplane list"""
         safeCheck()
         al = set(fetch()['airlines'])
         airlines = [i.replace('_', ' ').replace('-', ' ').title()
@@ -147,6 +154,7 @@ class Ratings():
         self.update()
 
     def update(self):
+        """Updates the csv file to include the ratings of each airline"""
         al = fetch()['airlines']
         if not al:
             print("No airlines in list.")
@@ -167,10 +175,13 @@ class Ratings():
         return True
 
     def get(self):
+        """Returns csv file in a pandas table format"""
+        self.update()
         df = pd.DataFrame(get())
         print(df)
 
     def ratings(self, airlines):
+        """Returns the ratings of given airlines without affecting the csv file"""
         airlines = [i.replace('_', ' ').replace('-', ' ').title()
                     for i in airlines]
         for i in airlines:
@@ -202,6 +213,7 @@ class Ratings():
                 print("%s: %s" % (i, self.convert(gs(i)['stars'])))
 
     def mode(self):
+        """Changes the mode of the program from emoji mode (★★★★★★★✰✰✰) to the defualt text mode (7/10) and vice versa"""
         safeCheck()
         current_mode = fetch()['mode']
         print("Current mode is %s" % ('emoji' if current_mode else 'text'))
@@ -216,8 +228,18 @@ class Ratings():
         safeCheck()
         if fetch()['mode']:
             return '★' * stars + '✰' * (10 - stars)
-        else:
+        else: 
             return '%s/10' % stars
+    
+    def __str__(self):
+        return "Ratings"
+
+    def help(self):
+        """Provides a list of commands"""
+        method_list = [attribute for attribute in dir(self) if callable(
+        getattr(self, attribute)) and attribute.startswith('__') is False and attribute != 'convert']
+        for i in method_list:
+            print("py main.py --command %s...: %s" % (i, getattr(self, i).__doc__))
 
 
 if __name__ == '__main__':
