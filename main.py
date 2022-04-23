@@ -170,7 +170,7 @@ class Ratings():
         df = pd.DataFrame(get())
         print(df)
 
-    def price(self, airlines):
+    def ratings(self, airlines):
         airlines = [i.replace('_', ' ').replace('-', ' ').title()
                     for i in airlines]
         for i in airlines:
